@@ -1,6 +1,7 @@
-package rest.connection.restclient.clientproxies;
+package rest.restclient.proxies;
 
-import rest.connection.ConnectionController;
+import rest.ConnectionController;
+import rest.restclient.base.ResteasyClientProxy;
 
 public class ConnectionResteasyClientProxy extends ResteasyClientProxy<ConnectionController> {
 

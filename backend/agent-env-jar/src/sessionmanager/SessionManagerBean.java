@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.ejb.EJB;
@@ -15,14 +16,19 @@ import javax.ejb.Remote;
 import javax.ejb.Singleton;
 
 import agentmanager.AgentManagerRemote;
+import agents.AID;
+import agents.ChatMasterAgent;
+import agents.UserAgent;
 import connectionmanager.ConnectionManagerRemote;
+import messagemanager.ACLMessage;
+import messagemanager.Performative;
+import model.Host;
 import model.Message;
 import model.User;
 import model.UserWithHostDTO;
-import rest.connection.restclient.clientproxies.UserResteasyClientProxy;
 import rest.dtos.NewMessageDTO;
-import sessionmanager.dtos.SessionInfoDTO;
-import util.JNDILookup;
+import rest.restclient.proxies.MessageResteasyClientProxy;
+import util.JsonMarshaller;
 
 
 @Singleton
@@ -55,32 +61,39 @@ public class SessionManagerBean implements SessionManagerRemote {
 		registered.put(user.getUsername(), user);
 		
 		// inform other nodes of register
-		for (String nodeAlias: connectionManager.getAllNodeAliases()) {
-			new UserResteasyClientProxy(nodeAlias)
-			.performAction(rest -> rest.registerFromOtherNode(user));
+		for (Host node: connectionManager.getAllNodes()) {
+			new MessageResteasyClientProxy(node.getAlias())
+			.performAction(rest -> {
+				rest.sendMessage(getMessageForOtherChatMaster(node, Performative.REGISTER_FROM_OTHER_NODE, user));
+			});
 		}
 		return true;
 	}
 
+	
+
 	@Override
-	public SessionInfoDTO login(User user) {
+	public AID login(User user) {
 		String username = user.getUsername();
 		
 		if(!isUserRegistered(user) || isUserLoggedIn(user)) {
 			return null;
 		}
 		
-		user.setHost(connectionManager.getCurrentNode());
+		Host currentNode = connectionManager.getCurrentNode();
+		user.setHost(currentNode);
 		loggedIn.put(username, user);
-		agentManager.startAgent(username, JNDILookup.UserAgentLookup);
+		AID startedAID = agentManager.startAgent(UserAgent.AGENT_TYPE, username);
 		
 		// inform other nodes of login
-		for (String nodeAlias: connectionManager.getAllNodeAliases()) {
-			new UserResteasyClientProxy(nodeAlias)
-			.performAction(rest -> rest.loginFromOtherNode(user));
+		for (Host node: connectionManager.getAllNodes()) {
+			new MessageResteasyClientProxy(node.getAlias())
+			.performAction(rest -> {
+				rest.sendMessage(getMessageForOtherChatMaster(node, Performative.LOG_IN_FROM_OTHER_NODE, user));
+			});
 		}
 		
-		return new SessionInfoDTO(username, username, user.getHost().getAlias());
+		return startedAID;
 	}
 
 	private boolean isUserLoggedIn(User user) {
@@ -103,14 +116,15 @@ public class SessionManagerBean implements SessionManagerRemote {
 		if (existing == null) return false;
 		
 		loggedIn.remove(username);
-		agentManager.stopAgent(username);
+		agentManager.stopAgent(new AID(username, connectionManager.getCurrentNode(), UserAgent.AGENT_TYPE));
 		
 		// inform other nodes of logout
-		for (String nodeAlias: connectionManager.getAllNodeAliases()) {
-			new UserResteasyClientProxy(nodeAlias)
-			.performAction(rest -> rest.logoutFromOtherNode(username));
+		for (Host node: connectionManager.getAllNodes()) {
+			new MessageResteasyClientProxy(node.getAlias())
+			.performAction(rest -> {
+				rest.sendMessage(getMessageForOtherChatMaster(node, Performative.LOG_OUT_FROM_OTHER_NODE, username));
+			});
 		}
-		
 		return true;
 	}
 	
@@ -212,12 +226,26 @@ public class SessionManagerBean implements SessionManagerRemote {
 	@Override
 	public boolean logoutFromOtherNode(String username) {
 		loggedIn.remove(username);
+		agentManager.removeAgent(username);
 		return true;
 	}
 
 	@Override
-	public void logOutAllUsersFromnode(String nodeAlias) {
+	public void logOutAllUsersFromNode(String nodeAlias) {
 		loggedIn.values().removeIf(u -> u.getHost().getAlias().equals(nodeAlias));
 	}
 	
+	@Override
+	public ACLMessage getMessageForOtherChatMaster(Host node, Performative performative, Object content) {
+		AID sender = agentManager.getRunningAgents().stream()
+				.filter(a -> a.getHost().equals(connectionManager.getCurrentNode()))
+				.filter(a -> a.getType().getName().equals(ChatMasterAgent.class.getSimpleName()))
+				.findFirst().get();
+		Set<AID> recipients = agentManager.getRunningAgents().stream()
+				.filter(a -> a.getHost().equals(node) || a.getHost().getMasterAlias() == null || a.getHost().getMasterAlias().isEmpty())
+				.filter(a -> a.getType().getName().equals(ChatMasterAgent.class.getSimpleName()))
+				.collect(Collectors.toSet());
+		String jsonContent = JsonMarshaller.toBson(content);
+		return new ACLMessage(performative, sender, recipients, jsonContent);
+	}
 }

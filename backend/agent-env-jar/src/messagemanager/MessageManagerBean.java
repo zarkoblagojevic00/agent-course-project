@@ -1,5 +1,8 @@
 package messagemanager;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ejb.EJB;
@@ -43,7 +46,7 @@ public class MessageManagerBean implements MessageManagerRemote {
 		}
 	}
 
-	public void post(AgentMessage msg) {
+	public void post(ACLMessage msg) {
 		try {
 			defaultProducer.send(msg.toMessage(session));
 		} catch (JMSException e) {
@@ -60,6 +63,14 @@ public class MessageManagerBean implements MessageManagerRemote {
 	@Override
 	public MessageConsumer getConsumer() {
 		return factory.getConsumer(session);
+	}
+
+	@Override
+	public List<String> getPerformatives() {
+		List<String> result = new ArrayList<String>();
+		for(Performative p : Performative.values())
+			result.add(p.toString());
+		return result;
 	}
 
 

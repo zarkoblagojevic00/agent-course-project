@@ -1,6 +1,5 @@
 package ws;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,7 +13,7 @@ import javax.websocket.server.ServerEndpoint;
 
 @Singleton
 @ServerEndpoint("/ws/{username}")
-public class WebSocket {
+public class WebSocket extends BaseWebSocket {
 	private Map<String, Session> sessions = new HashMap<String, Session>();
 	
 	@OnOpen
@@ -43,15 +42,5 @@ public class WebSocket {
 	
 	public void onMessage(String message) {
 		sessions.values().forEach(session -> sendMessage(session, message));
-	}
-	
-	public void sendMessage(Session session, String message) {
-		if(session.isOpen()) {
-			try {
-				session.getBasicRemote().sendText(message);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 	}
 }

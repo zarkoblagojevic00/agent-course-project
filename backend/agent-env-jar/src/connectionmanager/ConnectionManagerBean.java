@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.ejb.LocalBean;
+import javax.ejb.Remote;
 import javax.ejb.Singleton;
 
 import connectionmanager.util.NodeInitializer;
@@ -15,6 +16,7 @@ import model.Host;
 
 @Singleton
 @LocalBean
+@Remote(ConnectionManagerRemote.class)
 public class ConnectionManagerBean implements ConnectionManagerRemote {
 	private final Host currentNode;
 	private Map<String, Host> nodes; 

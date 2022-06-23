@@ -6,16 +6,19 @@ import java.util.List;
 
 import javax.ejb.Remote;
 
+import agents.AID;
+import messagemanager.ACLMessage;
+import messagemanager.Performative;
+import model.Host;
 import model.Message;
 import model.User;
 import model.UserWithHostDTO;
 import rest.dtos.NewMessageDTO;
-import sessionmanager.dtos.SessionInfoDTO;
 
 @Remote
 public interface SessionManagerRemote {
 
-	public SessionInfoDTO login(User user);
+	public AID login(User user);
 
 	public boolean register(User user);
 	
@@ -49,5 +52,7 @@ public interface SessionManagerRemote {
 
 	public boolean logoutFromOtherNode(String username);
 
-	public void logOutAllUsersFromnode(String nodeAlias);
+	public void logOutAllUsersFromNode(String nodeAlias);
+	
+	public ACLMessage getMessageForOtherChatMaster(Host node, Performative performative, Object content);
 }

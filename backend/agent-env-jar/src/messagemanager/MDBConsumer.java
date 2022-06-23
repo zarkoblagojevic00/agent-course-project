@@ -9,6 +9,7 @@ import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 
 import agentmanager.AgentManagerRemote;
+import agents.AID;
 import agents.Agent;
 
 /**
@@ -42,11 +43,11 @@ public class MDBConsumer implements MessageListener {
 	}
 
 	private void deliverMessage(Message message) throws JMSException {
-		AgentMessage agentMessage = (AgentMessage) ((ObjectMessage) message).getObject();
+		ACLMessage aclMessage = (ACLMessage) ((ObjectMessage) message).getObject();
 		
-		for (String recipient: agentMessage.getRecipients()) {
+		for (AID recipient: aclMessage.getRecipients()) {
 			Agent agent = agm.getRunningAgent(recipient);
-			Runnable runnable = () -> agent.handleMessage(agentMessage);
+			Runnable runnable = () -> agent.handleMessage(aclMessage);
 			new Thread(runnable).start();
 		}
 	

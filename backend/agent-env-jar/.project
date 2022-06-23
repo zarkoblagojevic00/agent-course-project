@@ -3,6 +3,7 @@
 	<name>agent-env-jar</name>
 	<comment></comment>
 	<projects>
+		<project>agent-env-war</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

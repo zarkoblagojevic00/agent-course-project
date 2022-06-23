@@ -1,2 +1,2 @@
 Manifest-Version: 1.0
-Dependencies: deployment.Chat-ear.ear.Chat-war.war
+Dependencies: deployment.agent-env-ear.ear.agent-env-war.war

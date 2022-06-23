@@ -1,19 +1,17 @@
-package rest.connection.restclient.clientproxies;
+package rest.restclient.base;
 
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
-import rest.connection.restclient.EndpointProxyHandler;
-
 public class ResteasyClientProxy<T> {
-	private final static String URL_FORMAT = "http://%s/Chat-war/api/%s";
+	private final static String URL_FORMAT = "http://%s/agent-env-war/api/%s";
 	private final Class<T> proxyClass;
 	private final String url;
 	
-	public ResteasyClientProxy(String host, String endpoint, Class<T> proxyClass) {
+	public ResteasyClientProxy(String receiverHost, String endpoint, Class<T> proxyClass) {
 		super();
-		this.url = String.format(URL_FORMAT, host, endpoint);
+		this.url = String.format(URL_FORMAT, receiverHost, endpoint);
 		this.proxyClass = proxyClass;
 	}
 

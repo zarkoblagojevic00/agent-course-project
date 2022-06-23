@@ -1,4 +1,4 @@
-package rest.connection;
+package rest;
 
 import java.util.ArrayList;
 
