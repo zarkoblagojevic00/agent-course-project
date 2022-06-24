@@ -79,6 +79,7 @@ public class AgentManagerBean implements AgentManagerRemote {
 	@Override
 	public void stopAgent(AID aid) {
 		runningAgents.remove(aid);
+		wsAgents.send(JsonMarshaller.toJson(getRunningAgents()));
 	}
 
 	@Override
