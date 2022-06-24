@@ -1,6 +1,7 @@
 package util;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class JsonMarshaller {
 
@@ -19,6 +20,10 @@ public class JsonMarshaller {
 	
 	public static <T> T fromJson(String json, Class<T> clazz) {
 		return gson.fromJson(json, clazz);
+	}
+
+	public static <T> String toJsonPP(T object) {
+		return new GsonBuilder().setPrettyPrinting().create().toJson(object);
 	}
  
 }

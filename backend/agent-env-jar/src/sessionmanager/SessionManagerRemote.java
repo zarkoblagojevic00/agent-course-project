@@ -34,13 +34,13 @@ public interface SessionManagerRemote {
 	
 	public boolean logout(String username);
 
-	public List<String> getLocalRecipients();
+	public List<AID> getLocalRecipients();
 
 	public User getLoggedInUser(String username);
 	
 	public Message unpackMessage(NewMessageDTO dto);
 
-	public List<String> getOtherLocalRecipients(String username);
+	public List<AID> getOtherLocalRecipients(String username);
 	
 	public void receiveLoggedInUsersFromMasterNode(Collection<User> users);
 	
@@ -55,4 +55,8 @@ public interface SessionManagerRemote {
 	public void logOutAllUsersFromNode(String nodeAlias);
 	
 	public ACLMessage getMessageForOtherChatMaster(Host node, Performative performative, Object content);
+
+	public List<AID> getRecipientsForNode(String recipientAlias);
+
+	public List<AID> getRecipientForMessage(String recipient);
 }

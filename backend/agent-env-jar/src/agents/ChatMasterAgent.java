@@ -1,5 +1,6 @@
 package agents;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -121,18 +122,16 @@ public class ChatMasterAgent extends DiscreetAgent {
 		wsLog.send(response);
 	}
 	
-	@SuppressWarnings("unchecked")
-	private void receiveRegisteredFromMasterNode(ACLMessage message) {
-		List<User> registered = JsonMarshaller.fromJson(message.getContent(), (Class<List<User>>)(Class<?>)List.class);
+	private void receiveRegisteredFromMasterNode(ACLMessage message) { 
+		List<User> registered = Arrays.asList(JsonMarshaller.fromJson(message.getContent(), User[].class));
 		sessionManager.receiveRegisteredUsersFromMasterNode(registered);
-		wsLog.send(String.format("Local ChatMasterAgent received registered users from MASTER NODE: %s", JsonMarshaller.toJson(registered)));
+		wsLog.send(String.format("Local ChatMasterAgent received registered users from MASTER NODE: \n%s", JsonMarshaller.toJsonPP(registered)));
 	}
 
-	@SuppressWarnings("unchecked")
 	private void receiveLoggedInFromMasterNode(ACLMessage message) {
-		List<User> loggedIn = JsonMarshaller.fromJson(message.getContent(), (Class<List<User>>)(Class<?>)List.class);
+		List<User> loggedIn = Arrays.asList(JsonMarshaller.fromJson(message.getContent(), User[].class));
 		sessionManager.receiveLoggedInUsersFromMasterNode(loggedIn);
-		wsLog.send(String.format("Local ChatMasterAgent received logged in users from MASTER NODE: %s", JsonMarshaller.toJson(loggedIn)));
+		wsLog.send(String.format("Local ChatMasterAgent received logged in users from MASTER NODE: \n%s", JsonMarshaller.toJsonPP(loggedIn)));
 
 	}
 	

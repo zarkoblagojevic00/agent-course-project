@@ -11,6 +11,7 @@ import javax.jms.ObjectMessage;
 import agentmanager.AgentManagerRemote;
 import agents.AID;
 import agents.Agent;
+import util.JsonMarshaller;
 
 /**
  * Message-Driven Bean implementation class for: MDBConsumer
@@ -44,6 +45,10 @@ public class MDBConsumer implements MessageListener {
 
 	private void deliverMessage(Message message) throws JMSException {
 		ACLMessage aclMessage = (ACLMessage) ((ObjectMessage) message).getObject();
+		
+		System.out.println(String.format(
+				"Message received: \n%s", 
+				JsonMarshaller.toJsonPP(aclMessage)));
 		
 		for (AID recipient: aclMessage.getRecipients()) {
 			Agent agent = agm.getRunningAgent(recipient);

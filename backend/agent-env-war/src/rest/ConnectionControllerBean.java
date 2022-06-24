@@ -49,6 +49,7 @@ public class ConnectionControllerBean implements ConnectionController {
 		System.out.println(String.format("Registering new node: %s", node.getAlias()));
 		connectionManager.addNode(node);
 		fetchAgentClassesFromNewNode(node);
+		fetchAgentsFromNewNode(node);
 		informExistingNodesThatNewNodeIsRegistered(node);
 		informNewNodeOfExistingNodes(node);
 		informNewNodeOfExistingAgentClasses(node);
@@ -56,6 +57,8 @@ public class ConnectionControllerBean implements ConnectionController {
 		informNewNodeOfLoggedInUsers(node);
 		informNewNodeOfRegisteredUsers(node);
 	}
+
+	
 
 	
 
@@ -101,6 +104,17 @@ public class ConnectionControllerBean implements ConnectionController {
 	private void fetchAgentClassesFromNewNode(Host node) {
 		new AgentResteasyClientProxy(node.getAlias())
 		.performAction(rest -> agentManager.updateAgentTypes(rest.getAllAgentTypes()));
+	}
+	
+	// done by master node
+	private void fetchAgentsFromNewNode(Host node) {
+		new AgentResteasyClientProxy(node.getAlias())
+		.performAction(rest -> agentManager.updateRunningAgents(rest.getAllRunningAgents()));
+		try {
+			Thread.sleep(2000L);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	// done by master node

@@ -129,10 +129,11 @@ public class SessionManagerBean implements SessionManagerRemote {
 	}
 	
 	@Override
-	public List<String> getLocalRecipients() {
-		return getLoggedInUsers().stream()
-				.filter(uwh -> uwh.getHostAlias().equals(connectionManager.getCurrentNode().getAlias()))
-				.map(UserWithHostDTO::getUsername).collect(Collectors.toList());
+	public List<AID> getLocalRecipients() {
+		return agentManager.getRunningAgents().stream()
+				.filter(aid -> aid.getType().getName().equals(UserAgent.class.getSimpleName()))
+				.filter(aid -> aid.getHost().equals(connectionManager.getCurrentNode()))
+				.collect(Collectors.toList());
 	}
 	
 	@Override
@@ -152,8 +153,8 @@ public class SessionManagerBean implements SessionManagerRemote {
 	}
 
 	@Override
-	public List<String> getOtherLocalRecipients(String username) {
-		return getLocalRecipients().stream().filter(un -> !username.equals(un)).collect(Collectors.toList());
+	public List<AID> getOtherLocalRecipients(String username) {
+		return getLocalRecipients().stream().filter(aid -> !username.equals(aid.getName())).collect(Collectors.toList());
 	}
 
 	
@@ -241,11 +242,28 @@ public class SessionManagerBean implements SessionManagerRemote {
 				.filter(a -> a.getHost().equals(connectionManager.getCurrentNode()))
 				.filter(a -> a.getType().getName().equals(ChatMasterAgent.class.getSimpleName()))
 				.findFirst().get();
+		
+		
 		Set<AID> recipients = agentManager.getRunningAgents().stream()
-				.filter(a -> a.getHost().equals(node) || a.getHost().getMasterAlias() == null || a.getHost().getMasterAlias().isEmpty())
+				.filter(a -> !a.getHost().equals(connectionManager.getCurrentNode()))
 				.filter(a -> a.getType().getName().equals(ChatMasterAgent.class.getSimpleName()))
 				.collect(Collectors.toSet());
 		String jsonContent = JsonMarshaller.toBson(content);
 		return new ACLMessage(performative, sender, recipients, jsonContent);
+	}
+
+	@Override
+	public List<AID> getRecipientsForNode(String recipientAlias) {
+		return agentManager.getRunningAgents().stream()
+			.filter(a -> a.getType().getName().equals(UserAgent.class.getSimpleName()))
+			.filter(a -> !a.getHost().equals(connectionManager.getCurrentNode()))
+			.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<AID> getRecipientForMessage(String recipient) {
+		return agentManager.getRunningAgents().stream()
+				.filter(aid -> aid.getName().equals(recipient))
+				.collect(Collectors.toList());
 	}
 }
