@@ -24,7 +24,7 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 5px 10%;
+    padding: 5px 2%;
     background: var(--background);
     border-bottom: 2px var(--primary-dark) solid;
 }
@@ -49,11 +49,5 @@ nav a {
 nav a.router-link-exact-active {
     color: #fc96e7;
     cursor: default;
-}
-
-@media screen and (min-device-width: 1200px) and (max-device-width: 1600px) and (-webkit-min-device-pixel-ratio: 1) {
-    .container {
-        padding: 5px 2%;
-    }
 }
 </style>

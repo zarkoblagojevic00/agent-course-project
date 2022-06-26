@@ -18,8 +18,13 @@ import agents.AID;
 import agents.Agent;
 import agents.AgentType;
 import agents.ChatMasterAgent;
+import agents.MasterHarvestAgent;
 import agents.UserAgent;
 import agents.harvester.MitrosHarvesterAgent;
+import agents.harvester.PlayerRsHarvesterAgent;
+import agents.harvester.SkyMusicHarvesterAgent;
+import agents.search.MasterSearchAgent;
+import agents.search.SlaveSearchAgent;
 import connectionmanager.ConnectionManagerRemote;
 import model.Host;
 import rest.restclient.proxies.AgentResteasyClientProxy;
@@ -49,7 +54,13 @@ public class AgentManagerBean implements AgentManagerRemote {
 	private static final List<AgentType> AGENT_TYPES = Arrays.asList( 
 			new AgentType(ChatMasterAgent.class.getSimpleName(), false),
 			new AgentType(UserAgent.class.getSimpleName(), true),
-			MitrosHarvesterAgent.AGENT_TYPE
+			MasterHarvestAgent.AGENT_TYPE,
+			MitrosHarvesterAgent.AGENT_TYPE,
+			PlayerRsHarvesterAgent.AGENT_TYPE,
+			SkyMusicHarvesterAgent.AGENT_TYPE,
+			MasterSearchAgent.AGENT_TYPE,
+			SlaveSearchAgent.AGENT_TYPE
+			
 	);
 	
     public AgentManagerBean() {}
