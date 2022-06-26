@@ -19,6 +19,7 @@ import agents.Agent;
 import agents.AgentType;
 import agents.ChatMasterAgent;
 import agents.UserAgent;
+import agents.harvester.MitrosHarvesterAgent;
 import connectionmanager.ConnectionManagerRemote;
 import model.Host;
 import rest.restclient.proxies.AgentResteasyClientProxy;
@@ -47,7 +48,8 @@ public class AgentManagerBean implements AgentManagerRemote {
 	
 	private static final List<AgentType> AGENT_TYPES = Arrays.asList( 
 			new AgentType(ChatMasterAgent.class.getSimpleName(), false),
-			new AgentType(UserAgent.class.getSimpleName(), true)
+			new AgentType(UserAgent.class.getSimpleName(), true),
+			MitrosHarvesterAgent.AGENT_TYPE
 	);
 	
     public AgentManagerBean() {}
@@ -55,7 +57,6 @@ public class AgentManagerBean implements AgentManagerRemote {
     @PostConstruct
     private void init() {
     	runningAgents = new HashMap<AID, Agent>();
-    	startAgent(ChatMasterAgent.AGENT_TYPE, "chat-master-agent");
     }
     
     @Override

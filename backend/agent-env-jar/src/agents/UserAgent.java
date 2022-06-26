@@ -62,7 +62,6 @@ public class UserAgent extends DiscreetAgent {
 
 	@Override
 	protected void handleMessageDiscreetly(ACLMessage message) {
-		
 		switch (message.getPerformative()) {
 		case RECEIVE_MESSAGE:
 			receiveMessage(message);

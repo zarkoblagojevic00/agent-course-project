@@ -12,6 +12,13 @@ import javax.ejb.Startup;
 import javax.ws.rs.Path;
 
 import agentmanager.AgentManagerRemote;
+import agents.ChatMasterAgent;
+import agents.MasterHarvestAgent;
+import agents.harvester.MitrosHarvesterAgent;
+import agents.harvester.PlayerRsHarvesterAgent;
+import agents.harvester.SkyMusicHarvesterAgent;
+import agents.search.MasterSearchAgent;
+import agents.search.SlaveSearchAgent;
 import connectionmanager.ConnectionManagerRemote;
 import messagemanager.Performative;
 import model.Host;
@@ -40,6 +47,16 @@ public class ConnectionControllerBean implements ConnectionController {
 	
 	@PostConstruct
 	private void init() {
+		agentManager.startAgent(ChatMasterAgent.AGENT_TYPE, "chat-master-agent");
+		agentManager.startAgent(MitrosHarvesterAgent.AGENT_TYPE, "mitros-harvester");
+		agentManager.startAgent(SkyMusicHarvesterAgent.AGENT_TYPE, "sky-music-harvester");
+		agentManager.startAgent(PlayerRsHarvesterAgent.AGENT_TYPE, "player-rs-harvester");
+		agentManager.startAgent(MasterHarvestAgent.AGENT_TYPE, "master-harvest");
+		agentManager.startAgent(MasterSearchAgent.AGENT_TYPE, "master-searcher");
+		agentManager.startAgent(SlaveSearchAgent.AGENT_TYPE, "slave-searcher");
+		
+
+		
 		if (connectionManager.getCurrentNode().getMasterAlias() != null)
 			initiateHandshake();
 	}
