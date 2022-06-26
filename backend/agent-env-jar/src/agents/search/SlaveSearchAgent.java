@@ -32,15 +32,16 @@ public class SlaveSearchAgent extends BaseSearchAgent implements Serializable {
 	private static final List<String> REMOTE_AGENTS_TO_HARVEST = Arrays.asList(PlayerRsHarvesterAgent.class.getSimpleName());
 	
 	public static final AgentType AGENT_TYPE = new AgentType(SlaveSearchAgent.class.getSimpleName(), false);
-	
 
 	@Override
 	protected void searchForHits(ACLMessage message) {
 		AID sender = getAID();
-		List<AID> recipients = getRecipientsForLocalHarvest();
+		List<AID> recipients = getRecipientsForRemoteHarvest();
+		boolean isLocal = false;
 		if (recipients.isEmpty()) {
-			System.out.println("No other nodes to perform Slave search");
-			return;
+			isLocal = true;
+			System.out.println("No other nodes to perform Slave search. Slave looking locally...");
+			recipients = getRecipientsForLocalHarvest();
 		}
 		
 		ACLMessage harvestMessage = new ACLMessage(Performative.GET_HARVESTED, sender, new HashSet<>(recipients), currentSearchDTO.getType().toString());
@@ -51,14 +52,26 @@ public class SlaveSearchAgent extends BaseSearchAgent implements Serializable {
 				? connectionManager.getCurrentNode().getMasterAlias()
 				: recipientAID.getHost().getAlias();		
 		
-		new MessageResteasyClientProxy(recipient)
-		.performAction(rest -> rest.sendMessage(harvestMessage));
+		if (isLocal) {
+			messageManager.post(harvestMessage);
+		} else {
+			new MessageResteasyClientProxy(recipient)
+			.performAction(rest -> rest.sendMessage(harvestMessage));
+		}
+		
+	}
+	
+	private List<AID> getRecipientsForRemoteHarvest() {
+		return agentManager.getRunningAgents().stream()
+				.filter(aid -> REMOTE_AGENTS_TO_HARVEST.contains(aid.getType().getName()))
+				.filter(aid -> !aid.getHost().equals(connectionManager.getCurrentNode()))
+				.collect(Collectors.toList());
 	}
 	
 	private List<AID> getRecipientsForLocalHarvest() {
 		return agentManager.getRunningAgents().stream()
 				.filter(aid -> REMOTE_AGENTS_TO_HARVEST.contains(aid.getType().getName()))
-				.filter(aid -> !aid.getHost().equals(connectionManager.getCurrentNode()))
+				.filter(aid -> aid.getHost().equals(connectionManager.getCurrentNode()))
 				.collect(Collectors.toList());
 	}
 

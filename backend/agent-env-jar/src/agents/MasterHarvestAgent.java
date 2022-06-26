@@ -35,7 +35,6 @@ public class MasterHarvestAgent extends DiscreetAgent implements Serializable {
 	
 	public MasterHarvestAgent() {
 		super();
-		// TODO: If there are 2 nodes this var should be 2 else should be 1
 		numberOfSearchersToWaitResults = 2;
 		numberOfSearchersThatReturnedResults = 0;
 		currentSearchResults = new ArrayList<>();
